@@ -1,0 +1,85 @@
+---
+uti: com.xamarin.workbook
+platforms:
+- Console
+---
+
+# Using Linq
+
+LINQ stands for Language INtegrated Query and is a tool that enables quering data in a manner that is comperable to SQL.
+
+Linq can be used with any collection that implements the IEnumerable\<> interface such as Lists, Arrays, Dictionarys, as well, Linq can be used to query files and services such as a database or XML file.
+
+## The Building Blocks
+
+There are many features of C# that go in to making LINQ work
+
+Lets take a look at delegates.
+
+A Delegate is a type that defines the signature of a method and allows you to pass and store behavior in your code.
+
+One example where you might want to use a delegate: Lets say you want to write a generic sort method. You don’t know anything about the type of data you will be sorting. If you are sorting objects, you don’t know how to compare two objects and put them in order. But as long as you can have someone tell you how to compare the type you are sorting you will be fine. Delegates allow you to have someone pass in a method to your sorting method that knows how to compare the types that they want sorted.
+
+## Built in delegate types
+
+Most of the time you wont need to declare your own delegate types. There are several delegate types built into .NET that should provide you with most of what you need.
+
+### Func
+
+The Func delegate types are delegates that return a generic value and can have 0-16 parameters
+
+### Action
+
+The Action delegate types are methods that return void and can have 0-16 parameters
+
+### Predicate
+
+The Predicate delegate type returns bool and takes only one parameter
+
+### Comparison
+
+The Comparison delegate type represents a method that takes two parameters of the same type and returns a int
+
+### EventHandler
+
+The EventHandler delegate type represents a method that returns void and takes a object - sender and EventArgs as parameters
+
+## Lambdas
+
+LINQ makes use of delegate types in most of its methods to allow you to provide the logic to allow the method to do its job. Although any method could be used, most likely you will use lambdas or anaonomus methods as lambdas are also known to provide that logic. Below are some examples of the syntax used for lambdas
+
+Note the \`=>\` opperator is known as the ‘goes to’
+
+```csharp
+Action a = () => System.Console.WriteLine("Hello Action");
+a();
+int num = 1;
+Action<int> a1 = (x) => System.Console.WriteLine($"Hello Action {x}");
+a1(num);
+a1 = x => System.Console.WriteLine($"Hello Action {x}");// the parns are optional if you only have one but can help with readability
+int num2 = 2;
+a1(num2);
+Action<int, int> a2 = (x,y) => System.Console.WriteLine($"Hello Action {x} {y}");
+a2(num, num2);
+```
+
+When using lambdas that return a value, the return keyword is optional when there is only one expression in the lambda
+
+```csharp
+Func<int> f = () => {
+     return num;};
+Console.WriteLine(f());
+f = () => num;
+Console.WriteLine(f());
+```
+
+another feature of lambdas is that they have access to variable in the scope where created
+
+```csharp
+
+int num1 = 1;
+Action a = () => Console.WriteLine(num1);// not passing in any variables to the lambda, just using variables in our scope
+a();
+num1 = 2;
+a();
+```
