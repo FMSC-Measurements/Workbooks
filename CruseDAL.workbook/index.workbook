@@ -1,0 +1,69 @@
+---
+uti: com.xamarin.workbook
+platforms:
+- Console
+---
+
+# CruiseDAL
+
+## Anatomy
+
+Initially there was just the CruiseDAL with the DAL class, the data object classes and a few other helper classes. And the code version was the same as the database schema version.
+
+I separated the components that were purely concerned with database operations and were not specific to the design of the database for cruise files. The benefits of doing so are
+
+* core logic could be versioned separately from the database schema
+
+* easier to work with code that is better separated by concerns
+
+* easier to test code that is better separated by concerns
+
+* ability to reuse core code down the road
+
+## Getting Started
+
+There are three constructors that can be used to create a instance of the DAL class. Although primarily you will want to either open an existing file or create a new file, in cases where you are testing code you may want to create a temporary ‘in memory’ file, which can be done using the default constructor.
+
+```csharp
+#r "CruiseDAL.dll"//adding a reference to the dll, ignore this
+```
+
+```csharp
+using CruiseDAL;
+var dal = new DAL();//create a temporary in memory file
+//var dal = new DAL(@"C:\path\to\someFile.cruise");//opens an existing file
+//var dal = new DAL(@"C:\path\to\someFile.cruise", true);//create a new file
+```
+
+## Reading Data
+
+Reading data using the DAL is done by chaining together methods that allow you to build a query. This process starts with calling the From method, which will return a QueryBuilder object, and ends by calling Read or Query.
+
+```csharp
+using CruiseDAL.DataObjects;
+var globals = dal.From<GlobalsDO>().Read();
+```
+
+### Two ways to read data
+
+Onece you have a used the query builder to build your query, you can use one of two methods to execute your query: Read or Query. Each method has a subtle difference in behavior.
+
+Read: this method stores data that is read in a cache, so that when it is re-read the cached object is used instead of creating a new instance.
+
+Query: this method creates a new instance of a data object every time a record is read.
+
+```csharp
+dal.Insert(new CuttingUnitDO(){Code = "01"});
+
+var unit1 = dal.From<CuttingUnitDO>().Where("Code = '01'").Read().First();
+var unit1Again = dal.From<CuttingUnitDO>().Where("Code = '01'").Read().First();
+object.ReferenceEquals(unit1, unit1Again);
+```
+
+```csharp
+dal.Insert(new CuttingUnitDO(){Code = "02"});
+
+var unit2 = dal.From<CuttingUnitDO>().Where("Code = '02'").Query().First();
+var unit2Again = dal.From<CuttingUnitDO>().Where("Code = '02'").Query().First();
+object.ReferenceEquals(unit2, unit2Again);
+```
